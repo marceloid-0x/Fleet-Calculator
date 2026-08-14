@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Ahorro — Clara Fleet Card</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+  :root {
+    --primary: #335894;
+    --primary-hover: #294676;
+    --on-primary: #FFFFFF;
+    --content-high: #1F2223;
+    --content-medium: #404344;
+    --content-low: #737677;
+    --bg-default: #FBFCFD;
+    --bg-surface: #FFFFFF;
+    --bg-highlight: #F7F9FA;
+    --border: #DFE1E2;
+    --border-interactive: #BBBEBF;
+    --success-bg: #E8F6E5;
+    --success-fg: #356D29;
+    --warning-bg: #FFF9E3;
+    --warning-fg: #483C10;
+    --info-bg: #E2EAFE;
+    --info-fg: #244EB0;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg-default);
+    color: var(--content-high);
+    -webkit-font-smoothing: antialiased;
+    padding: 24px;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  .header { margin-bottom: 24px; }
+  .header h1 {
+    font-size: 28px; font-weight: 600; margin: 0 0 8px 0;
+    letter-spacing: -0.28px; color: var(--content-high);
+  }
+  .header p {
+    font-size: 14px; color: var(--content-low); margin: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 720px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card h2 {
+    font-size: 16px; font-weight: 600; margin: 0 0 16px 0;
+    color: var(--content-high);
+  }
+
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: var(--content-medium); margin-bottom: 6px;
+  }
+  .field .hint {
+    display: block; font-size: 12px; color: var(--content-low);
+    margin-top: 4px; line-height: 1.4;
+  }
+
+  .input-wrap { position: relative; }
+  .input-wrap .prefix, .input-wrap .suffix {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--content-low); pointer-events: none;
+  }
+  .input-wrap .prefix { left: 12px; }
+  .input-wrap .suffix { right: 12px; }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%; height: 40px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--content-high);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-interactive);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input.with-prefix { padding-left: 28px; }
+  input.with-suffix { padding-right: 32px; }
+  input:focus, select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(51,88,148,0.12);
+  }
+  input:hover:not(:focus), select:hover:not(:focus) {
+    border-color: var(--content-low);
+  }
+  select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%23737677' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .slider-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  input[type="range"] { flex: 1; accent-color: var(--primary); }
+  .slider-value {
+    min-width: 40px; text-align: right;
+    font-size: 14px; font-weight: 600; color: var(--content-high);
+  }
+
+  /* Results */
+  .result-hero {
+    background: linear-gradient(135deg, #335894 0%, #294676 100%);
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .result-hero .label {
+    font-size: 12px; opacity: 0.85; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .result-hero .value {
+    font-size: 36px; font-weight: 700; letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .result-hero .sub {
+    font-size: 13px; opacity: 0.9; margin-top: 8px;
+  }
+
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row .label { color: var(--content-medium); }
+  .tech-tag {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--content-low);
+    background: var(--bg-highlight);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 400;
+  }
+  .breakdown-row .value { font-weight: 500; color: var(--content-high); }
+  .breakdown-row.positive .value { color: var(--success-fg); }
+  .breakdown-row.negative .value { color: #B00020; }
+  .breakdown-row.total {
+    border-top: 2px solid var(--content-high);
+    border-bottom: none;
+    padding-top: 16px; margin-top: 8px;
+    font-weight: 600;
+  }
+  .breakdown-row.total .label { color: var(--content-high); font-weight: 600; }
+
+  /* Disclaimer boxes */
+  .disclaimer {
+    background: var(--warning-bg);
+    color: var(--warning-fg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 16px;
+  }
+  .disclaimer strong { display: block; margin-bottom: 4px; font-weight: 600; }
+
+  .info-note {
+    background: var(--info-bg);
+    color: var(--info-fg);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 12px;
+  }
+
+  .footnote {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--bg-highlight);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--content-low);
+    line-height: 1.5;
+  }
+  .footnote ol { margin: 8px 0 0 0; padding-left: 20px; }
+  .footnote li { margin-bottom: 4px; }
+
+  /* Toggle for optional section */
+  .toggle-section {
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .toggle-btn {
+    background: none; border: none; padding: 0;
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    color: var(--primary); cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .toggle-btn:hover { color: var(--primary-hover); }
+  .toggle-content { display: none; margin-top: 16px; }
+  .toggle-content.open { display: block; }
+
+  .badge-flag {
+    display: inline-block;
+    background: var(--warning-bg);
+    color: var(--warning-fg);
+    font-size: 10px; font-weight: 600;
+    padding: 2px 6px; border-radius: 4px;
+    margin-left: 6px; vertical-align: middle;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Calculadora de ahorro — Clara Fleet Card</h1>
+    <p>Estima cuánto podrías ahorrar al mes con captura fiscal completa de tus consumos de combustible.</p>
+  </div>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div class="card">
+      <h2>Tus datos</h2>
+
+      <div class="field">
+        <label for="fuelSpend">Gasto mensual en combustible (MXN)</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="text" id="fuelSpend" class="with-prefix" value="100,000" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="regime">Régimen fiscal</label>
+        <select id="regime">
+          <option value="pmg" selected>Persona Moral General (ISR 30%)</option>
+          <option value="agapes">Sector Primario — AGAPES</option>
+          <option value="coordinados">Coordinados (autotransporte)</option>
+        </select>
+        <span class="hint">La tasa efectiva de ISR se ajusta abajo. Consulta a tu asesor fiscal.</span>
+      </div>
+
+      <div class="field">
+        <label for="isrRate">Tasa efectiva de ISR aplicable (%)</label>
+        <div class="input-wrap">
+          <input type="number" id="isrRate" class="with-suffix" value="30" min="0" max="35" step="0.5">
+          <span class="suffix">%</span>
+        </div>
+        <span class="hint" id="isrHint">Tasa general Art. 9 LISR. Aplicable a Personas Morales del Régimen General.</span>
+      </div>
+
+      <div class="toggle-section">
+        <button class="toggle-btn" id="advancedToggle">
+          <span id="toggleIcon">▸</span> Opciones avanzadas
+        </button>
+        <div class="toggle-content" id="advancedContent">
+          <div class="field">
+            <label for="fee">Comisión Fleet Card (%)</label>
+            <div class="input-wrap">
+              <input type="number" id="fee" class="with-suffix" value="1.5" min="0" max="5" step="0.1">
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="ivaRate">Tasa IVA acreditable (%)</label>
+            <div class="input-wrap">
+              <input type="number" id="ivaRate" class="with-suffix" value="16" min="0" max="16" step="1">
+              <span class="suffix">%</span>
+            </div>
+            <span class="hint">Estándar 16% en gasolina para régimen general.</span>
+          </div>
+          <div class="field">
+            <label for="avgPrice">Precio promedio de gasolina (MXN/L) — solo para estimar litros</label>
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="number" id="avgPrice" class="with-prefix" value="24" min="0" step="0.10">
+            </div>
+            <span class="hint">Valor de referencia. Ajusta según tu mezcla y región.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card">
+      <h2>Tu ahorro estimado</h2>
+
+      <div class="result-hero">
+        <div class="label">Ahorro mensual estimado</div>
+        <div class="value" id="monthlySavings">$0</div>
+        <div class="sub" id="annualSavings">$0 al año</div>
+      </div>
+
+      <div class="breakdown-row positive">
+        <span class="label">IVA que puedes acreditar</span>
+        <span class="value" id="ivaSavings">+ $0</span>
+      </div>
+      <div class="breakdown-row positive">
+        <span class="label">ISR que dejas de pagar sobre tus utilidades</span>
+        <span class="value" id="isrSavings">+ $0</span>
+      </div>
+      <div class="breakdown-row negative">
+        <span class="label">Comisión Fleet Card (1.5%)</span>
+        <span class="value" id="feeCost">− $0</span>
+      </div>
+      <div class="breakdown-row total">
+        <span class="label">Ahorro neto mensual</span>
+        <span class="value" id="netSavings">$0</span>
+      </div>
+
+      <div class="info-note" id="litersNote">
+        Equivale a aproximadamente <strong id="liters">0 L</strong> mensuales
+        (con precio ref. <span id="priceRef">$24</span>/L).
+      </div>
+
+      <div class="disclaimer">
+        <strong>⚠️ Estimación referencial</strong>
+        Los cálculos son solo con fines informativos y no constituyen asesoría fiscal. El ahorro real depende de tu situación específica, régimen aplicable, cobertura de estaciones afiliadas y calidad de captura fiscal actual.
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <strong>Notas y supuestos</strong>
+    <ol>
+      <li><strong>IVA acreditable</strong> se calcula como gasto × (IVA / (100 + IVA)), asumiendo que el precio en bomba ya incluye IVA. Requiere CFDI 4.0 con complemento de combustibles válido.</li>
+      <li><strong>Beneficio ISR</strong> se calcula sobre el gasto sin IVA × tasa ISR aplicable.</li>
+      <li>El cálculo asume que hoy no facturas tus consumos de combustible. Si ya facturas parte, tu ahorro adicional con Fleet Card será menor.</li>
+      <li>Cobertura de estaciones afiliadas puede variar. Consulta la lista actualizada antes de contratar.</li>
+      <li><strong>PMG:</strong> tasa 30% conforme al Art. 9 de la LISR.</li>
+      <li><strong>AGAPES (personas morales):</strong> reducción del 30% sobre ISR determinado conforme al Art. 74 LISR (párrafo 12), aplicable en el rango de 20 a 423 UMA anual, con topes específicos hasta 4,230 UMA. Tasa efectiva ~21%.</li>
+      <li><strong>Coordinados:</strong> tributan conforme a los Arts. 72-73 LISR. Los integrantes Persona Moral aplican tasa general del Art. 9 (30%). Personas Físicas integrantes aplican tarifa progresiva. La facilidad del 8% sin comprobantes NO aplica a combustibles.</li>
+      <li>En todos los casos, valida con tu contador o asesor fiscal antes de tomar decisiones.</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+  // --- Helpers ---
+  const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n);
+  const fmtL = (n) => new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 }).format(n);
+  const parseNum = (s) => Number(String(s).replace(/[^0-9.]/g, '')) || 0;
+
+  // --- Regime defaults ---
+  // NOTE: AGAPES rates below are placeholder defaults flagged for fiscal validation.
+  // PMG 30% is standard. Do not treat AGAPES defaults as fiscally accurate.
+  // Verified against LISR Art. 9 (PMG), Art. 74 (AGAPES), Arts. 72-73 (Coordinados).
+  // AGAPES 21% = 30% base × (1 - 0.30 reduction) per Art. 74, párrafo 12, for income
+  // between 20 y 423 UMA anual. Above 4,230 UMA the reduction caps.
+  // Coordinados: no reduced rate — Art. 72 fracción II applies Art. 9 tariff (30%) for
+  // PM integrantes; PF integrantes apply progressive tariff up to 35%.
+  const REGIME_DEFAULTS = {
+    'pmg':         { isr: 30, hint: 'Tasa general Art. 9 LISR. Aplicable a Personas Morales del Régimen General.', flag: false },
+    'agapes':      { isr: 21, hint: '⚠️ Referencial. Tasa efectiva ~21% = 30% × (1 − reducción del 30% del Art. 74 LISR) para ingresos entre 20 y 423 UMA anual. Arriba de 4,230 UMA la reducción se topa. Valida umbrales con tu contador.', flag: true },
+    'coordinados': { isr: 30, hint: '⚠️ Tasa general 30% (Art. 72 fracción II → Art. 9 LISR) para integrantes Persona Moral. Integrantes Persona Física aplican tarifa progresiva del Art. 96/152 (hasta 35%). La facilidad del 8% sin comprobantes NO aplica a combustibles.', flag: true }
+  };
+
+  // --- Refs ---
+  const el = {
+    fuelSpend: document.getElementById('fuelSpend'),
+    regime: document.getElementById('regime'),
+    isrRate: document.getElementById('isrRate'),
+    isrHint: document.getElementById('isrHint'),
+    fee: document.getElementById('fee'),
+    ivaRate: document.getElementById('ivaRate'),
+    avgPrice: document.getElementById('avgPrice'),
+    monthlySavings: document.getElementById('monthlySavings'),
+    annualSavings: document.getElementById('annualSavings'),
+    ivaSavings: document.getElementById('ivaSavings'),
+    isrSavings: document.getElementById('isrSavings'),
+    feeCost: document.getElementById('feeCost'),
+    netSavings: document.getElementById('netSavings'),
+    liters: document.getElementById('liters'),
+    priceRef: document.getElementById('priceRef'),
+    advancedToggle: document.getElementById('advancedToggle'),
+    advancedContent: document.getElementById('advancedContent'),
+    toggleIcon: document.getElementById('toggleIcon')
+  };
+
+  // --- Format fuel spend on blur ---
+  el.fuelSpend.addEventListener('blur', () => {
+    const n = parseNum(el.fuelSpend.value);
+    el.fuelSpend.value = new Intl.NumberFormat('es-MX').format(n);
+    calc();
+  });
+  el.fuelSpend.addEventListener('input', calc);
+
+  // --- Regime change updates ISR default + hint ---
+  el.regime.addEventListener('change', () => {
+    const d = REGIME_DEFAULTS[el.regime.value];
+    el.isrRate.value = d.isr;
+    el.isrHint.innerHTML = d.hint;
+    calc();
+  });
+
+  // --- Advanced toggle ---
+  el.advancedToggle.addEventListener('click', () => {
+    el.advancedContent.classList.toggle('open');
+    el.toggleIcon.textContent = el.advancedContent.classList.contains('open') ? '▾' : '▸';
+  });
+
+  // --- All other inputs trigger recalc ---
+  [el.isrRate, el.fee, el.ivaRate, el.avgPrice].forEach(input => {
+    input.addEventListener('input', calc);
+  });
+
+  // --- Core calculation ---
+  function calc() {
+    const spend = parseNum(el.fuelSpend.value);
+    const ivaRate = parseFloat(el.ivaRate.value) || 0;
+    const isrRate = parseFloat(el.isrRate.value) || 0;
+    const feeRate = parseFloat(el.fee.value) || 0;
+    const avgPrice = parseFloat(el.avgPrice.value) || 0;
+
+    // IVA acreditable: spend × (IVA / (100 + IVA))  (assumes price includes IVA)
+    const ivaSaving = spend * (ivaRate / (100 + ivaRate));
+
+    // ISR benefit: (spend - IVA) × ISR rate
+    const spendExIva = spend - ivaSaving;
+    const isrSaving = spendExIva * (isrRate / 100);
+
+    // Fleet fee applies to ALL spend routed through the card, not just incremental
+    // (assumption: client moves 100% of fuel spend to the card).
+    const feeCost = spend * (feeRate / 100);
+
+    const net = ivaSaving + isrSaving - feeCost;
+    const annual = net * 12;
+    const liters = avgPrice > 0 ? spend / avgPrice : 0;
+
+    el.monthlySavings.textContent = fmt(net);
+    el.annualSavings.textContent = fmt(annual) + ' al año';
+    el.ivaSavings.textContent = '+ ' + fmt(ivaSaving);
+    el.isrSavings.textContent = '+ ' + fmt(isrSaving);
+    el.feeCost.textContent = '− ' + fmt(feeCost);
+    el.netSavings.textContent = fmt(net);
+    el.liters.textContent = fmtL(liters) + ' L';
+    el.priceRef.textContent = fmt(avgPrice);
+  }
+
+  calc();
+</script>
+</body>
+</html>
