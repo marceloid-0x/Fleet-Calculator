@@ -270,6 +270,15 @@
         <span class="hint" id="isrHint">Tasa general Art. 9 LISR. Aplicable a Personas Morales del Régimen General.</span>
       </div>
 
+      <div class="field">
+        <label for="avgPrice">Precio promedio de gasolina (MXN/L) — solo para estimar litros</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="number" id="avgPrice" class="with-prefix" value="24" min="0" step="0.10">
+        </div>
+        <span class="hint">Valor de referencia. Ajusta según tu mezcla y región.</span>
+      </div>
+
       <div class="toggle-section">
         <button class="toggle-btn" id="advancedToggle">
           <span id="toggleIcon">▸</span> Opciones avanzadas
@@ -289,14 +298,6 @@
               <span class="suffix">%</span>
             </div>
             <span class="hint">Estándar 16% en gasolina para régimen general.</span>
-          </div>
-          <div class="field">
-            <label for="avgPrice">Precio promedio de gasolina (MXN/L) — solo para estimar litros</label>
-            <div class="input-wrap">
-              <span class="prefix">$</span>
-              <input type="number" id="avgPrice" class="with-prefix" value="24" min="0" step="0.10">
-            </div>
-            <span class="hint">Valor de referencia. Ajusta según tu mezcla y región.</span>
           </div>
         </div>
       </div>
